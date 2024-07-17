@@ -1,22 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Input, Select, Button, Form, Row, Col, List, Typography, message } from 'antd';
+import { Input, Select, Button, Form, Typography, message, Card, Row, Col } from 'antd';
 import axios from 'axios';
+import Layout from './Layout';
 
 
 const { Option } = Select;
-const { Title } = Typography;
+const { Text, Title } = Typography;
 
-const App = () => {
+const App = ({ token, setToken }) => {
   const [jobs, setJobs] = useState({});
   const [searchType, setSearchType] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
 
   const fetchJobs = async (url) => {
     try {
       setLoading(true);
       const response = await axios.get(url);
-      console.log('Fetched data:', response.data);  // 데이터를 확인하기 위해 추가
+      console.log('Fetched data:', response.data);
       setJobs(response.data);
       setLoading(false);
     } catch (error) {
@@ -25,13 +27,26 @@ const App = () => {
     }
   };
 
+  const fetchUser = async () => {
+    if (token) {
+      try {
+        const response = await axios.get('http://localhost:8000/auth/users/me/', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setUser(response.data);
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      }
+    }
+  };
+
   useEffect(() => {
     fetchJobs('http://localhost:8000/jobs');
   }, []);
 
   useEffect(() => {
-    console.log('Jobs state updated:', jobs);  // 상태 업데이트를 확인하기 위해 추가
-  }, [jobs]);
+    fetchUser();
+  }, [token]);
 
   const handleSearch = () => {
     let url = 'http://localhost:8000/jobs';
@@ -47,59 +62,56 @@ const App = () => {
     const { 공고제목 = '', 직군 = '', 신입_경력 = '', 근무형태 = '', 링크 = '', 직무내용 = [] } = item;
 
     return (
-      <List.Item>
-        <Typography.Text mark>[{item.company}]</Typography.Text> 
-        <a href={링크} target="_blank" rel="noopener noreferrer">{공고제목}</a> - {직군} - {신입_경력} - {근무형태}
-        <div>
-          <ul>
-            {직무내용.map((content, index) => (
-              <li key={index}>{content}</li>
-            ))}
-          </ul>
-        </div>
-      </List.Item>
+      <Col xs={24} sm={12} md={8} lg={6} xl={6} key={item.id}>
+       <Card
+          title={<a href={링크} target="_blank" rel="noopener noreferrer" style={{ fontSize: '22px' }}>{공고제목}</a>}
+          style={{ marginBottom: '20px', height: '100%', fontSize: '18px' }}
+          bodyStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+        >
+          <div>
+            <p><Text strong style={{ fontSize: '18px' }}>Company:</Text> {item.company}</p>
+            <p><Text strong style={{ fontSize: '18px' }}>Position:</Text> {직군}</p>
+            <p><Text strong style={{ fontSize: '18px' }}>Experience:</Text> {신입_경력}</p>
+            <p><Text strong style={{ fontSize: '18px' }}>Employment Type:</Text> {근무형태}</p>
+            <ul>
+              {직무내용.map((content, index) => (
+                <li key={index} style={{ fontSize: '16px' }}>{content}</li>
+              ))}
+            </ul>
+          </div>
+        </Card>
+      </Col>
     );
   };
 
   return (
-    <div style={{ padding: '50px' }}>
-      <Row justify="center" style={{ marginBottom: '20px' }}>
-        <Col span={12}>
-          <Title level={2}>Job Portal</Title>
-          <Form layout="inline" onFinish={handleSearch}>
-            <Form.Item>
-              <Select value={searchType} onChange={setSearchType} style={{ width: 120 }}>
-                <Option value="all">All</Option>
-                <Option value="company">Company</Option>
-                <Option value="keyword">Keyword</Option>
-              </Select>
-            </Form.Item>
-            <Form.Item>
-              <Input
-                placeholder="Search..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                disabled={searchType === 'all'}
-              />
-            </Form.Item>
-            <Form.Item>
-              <Button type="primary" htmlType="submit" loading={loading}>Search</Button>
-            </Form.Item>
-          </Form>
-        </Col>
-        <Col span={4} offset={4}>
-          <Button type="primary" onClick={() => window.location.href = '/signup'}>Sign Up</Button>
-        </Col>
-      </Row>
-
-      <List
-        bordered
-        dataSource={Array.isArray(jobs) ? jobs : Object.entries(jobs).flatMap(([company, jobList]) =>
-          Array.isArray(jobList) ? jobList.map(job => ({ ...job, company })) : []
+    <Layout token={token} setToken={setToken} user={user}>
+      <Form layout="inline" onFinish={handleSearch} style={{ marginBottom: '20px' }}>
+        <Form.Item>
+          <Select value={searchType} onChange={setSearchType} style={{ width: 120 }}>
+            <Option value="all">All</Option>
+            <Option value="company">Company</Option>
+            <Option value="keyword">Keyword</Option>
+          </Select>
+        </Form.Item>
+        <Form.Item>
+          <Input
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            disabled={searchType === 'all'}
+          />
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" htmlType="submit" loading={loading}>Search</Button>
+        </Form.Item>
+      </Form>
+      <Row gutter={[16, 16]}>
+        {Array.isArray(jobs) ? jobs.map(renderItem) : Object.entries(jobs).flatMap(([company, jobList]) =>
+          Array.isArray(jobList) ? jobList.map(job => renderItem({ ...job, company })) : []
         )}
-        renderItem={renderItem}
-      />
-    </div>
+      </Row>
+    </Layout>
   );
 };
 
