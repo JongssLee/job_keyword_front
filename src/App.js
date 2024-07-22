@@ -64,7 +64,14 @@ const App = ({ token, setToken }) => {
     return (
       <Col xs={24} sm={12} md={8} lg={6} xl={6} key={item.id}>
         <Card
-          title={<a href={링크} target="_blank" rel="noopener noreferrer"><Title level={5}>{공고제목}</Title></a>}
+          title={
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Title level={5} style={{ margin: 0 }}>{공고제목}</Title>
+              <Button type="link" href={링크} target="_blank" rel="noopener noreferrer">
+                Go to Link
+              </Button>
+            </div>
+          }
           style={{ marginBottom: '20px', height: '100%' }}
           bodyStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
         >
@@ -112,7 +119,6 @@ const App = ({ token, setToken }) => {
           Array.isArray(jobList) ? jobList.map(job => renderItem({ ...job, company })) : []
         )}
       </Row>
-      
     </Layout>
   );
 };
