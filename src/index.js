@@ -17,7 +17,7 @@ const Root = () => {
     <Router>
       <Routes>
         <Route path="/" element={<App token={token} setToken={setTokenInLocalStorage} />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/signup" element={<Signup setToken={setTokenInLocalStorage} />} />
         <Route path="/login" element={<Login setToken={setTokenInLocalStorage} />} />
       </Routes>
     </Router>
