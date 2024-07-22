@@ -17,7 +17,7 @@ const Layout = ({ children, token, setToken, user }) => {
   return (
     <AntLayout>
       <Header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff', padding: '0 20px' }}>
-        <Button onClick={() => navigate('/')}><Title level={2} style={{ margin: 0 }} >Job Portal</Title></Button>
+        <Button type="text" onClick={() => navigate('/')}><Title level={2} style={{ margin: 0 }}>Job Portal</Title></Button>
         <div>
           {token ? (
             <>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Input, Select, Button, Form, Typography, message, Card, Row, Col } from 'antd';
 import axios from 'axios';
 import Layout from './Layout';
-
+import KeywordForm from './KeywordForm';
 
 const { Option } = Select;
 const { Text, Title } = Typography;
@@ -48,12 +48,12 @@ const App = ({ token, setToken }) => {
     fetchUser();
   }, [token]);
 
-  const handleSearch = () => {
+  const handleSearch = (keyword = '') => {
     let url = 'http://localhost:8000/jobs';
     if (searchType === 'company') {
       url = `http://localhost:8000/jobs/${searchTerm}`;
-    } else if (searchType === 'keyword') {
-      url = `http://localhost:8000/jobs/search/${searchTerm}`;
+    } else if (searchType === 'keyword' || keyword) {
+      url = `http://localhost:8000/jobs/search/${keyword || searchTerm}`;
     }
     fetchJobs(url);
   };
@@ -63,19 +63,19 @@ const App = ({ token, setToken }) => {
 
     return (
       <Col xs={24} sm={12} md={8} lg={6} xl={6} key={item.id}>
-       <Card
-          title={<a href={링크} target="_blank" rel="noopener noreferrer" style={{ fontSize: '22px' }}>{공고제목}</a>}
-          style={{ marginBottom: '20px', height: '100%', fontSize: '18px' }}
+        <Card
+          title={<a href={링크} target="_blank" rel="noopener noreferrer"><Title level={5}>{공고제목}</Title></a>}
+          style={{ marginBottom: '20px', height: '100%' }}
           bodyStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
         >
           <div>
-            <p><Text strong style={{ fontSize: '18px' }}>Company:</Text> {item.company}</p>
-            <p><Text strong style={{ fontSize: '18px' }}>Position:</Text> {직군}</p>
-            <p><Text strong style={{ fontSize: '18px' }}>Experience:</Text> {신입_경력}</p>
-            <p><Text strong style={{ fontSize: '18px' }}>Employment Type:</Text> {근무형태}</p>
+            <p><Text strong style={{ fontSize: '16px' }}>Company:</Text> {item.company}</p>
+            <p><Text strong style={{ fontSize: '16px' }}>Position:</Text> {직군}</p>
+            <p><Text strong style={{ fontSize: '16px' }}>Experience:</Text> {신입_경력}</p>
+            <p><Text strong style={{ fontSize: '16px' }}>Employment Type:</Text> {근무형태}</p>
             <ul>
               {직무내용.map((content, index) => (
-                <li key={index} style={{ fontSize: '16px' }}>{content}</li>
+                <li key={index} style={{ fontSize: '14px' }}>{content}</li>
               ))}
             </ul>
           </div>
@@ -106,11 +106,13 @@ const App = ({ token, setToken }) => {
           <Button type="primary" htmlType="submit" loading={loading}>Search</Button>
         </Form.Item>
       </Form>
+      {token && <KeywordForm token={token} onKeywordSearch={handleSearch} />}
       <Row gutter={[16, 16]}>
         {Array.isArray(jobs) ? jobs.map(renderItem) : Object.entries(jobs).flatMap(([company, jobList]) =>
           Array.isArray(jobList) ? jobList.map(job => renderItem({ ...job, company })) : []
         )}
       </Row>
+      
     </Layout>
   );
 };
