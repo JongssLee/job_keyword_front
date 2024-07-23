@@ -30,7 +30,7 @@ const App = ({ token, setToken }) => {
   const fetchUser = async () => {
     if (token) {
       try {
-        const response = await axios.get('http://localhost:8000/auth/users/me/', {
+        const response = await axios.get('/api/auth/users/me/', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUser(response.data);
@@ -41,7 +41,7 @@ const App = ({ token, setToken }) => {
   };
 
   useEffect(() => {
-    fetchJobs('http://localhost:8000/jobs');
+    fetchJobs('/api/jobs');
   }, []);
 
   useEffect(() => {
@@ -49,11 +49,11 @@ const App = ({ token, setToken }) => {
   }, [token]);
 
   const handleSearch = (keyword = '') => {
-    let url = 'http://localhost:8000/jobs';
+    let url = '/api/jobs';
     if (searchType === 'company') {
-      url = `http://localhost:8000/jobs/${searchTerm}`;
+      url = `/api/jobs/${searchTerm}`;
     } else if (searchType === 'keyword' || keyword) {
-      url = `http://localhost:8000/jobs/search/${keyword || searchTerm}`;
+      url = `/api/jobs/search/${keyword || searchTerm}`;
     }
     fetchJobs(url);
   };
