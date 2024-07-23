@@ -10,11 +10,11 @@ const Signup = ({ setToken }) => {
   const handleSignup = async (values) => {
     try {
       // 회원가입 요청
-      await axios.post('http://localhost:8000/users/', values);
+      await axios.post('/api/users/', values);
       message.success('User created successfully');
 
       // 회원가입 후 자동 로그인
-      const loginResponse = await axios.post('http://localhost:8000/auth/token', new URLSearchParams({
+      const loginResponse = await axios.post('/api/auth/token', new URLSearchParams({
         username: values.username,
         password: values.password,
       }), {

@@ -10,7 +10,7 @@ const Login = ({ setToken }) => {
 
   const handleLogin = async (values) => {
     try {
-      const response = await axios.post('http://localhost:8000/auth/token', new URLSearchParams({
+      const response = await axios.post('/api/auth/token', new URLSearchParams({
         username: values.username,
         password: values.password
       }));

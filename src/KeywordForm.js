@@ -12,7 +12,7 @@ const KeywordForm = ({ token, onKeywordSearch }) => {
 
   const fetchKeywords = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/auth/users/me/', {
+      const response = await axios.get('/api/auth/users/me/', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const userKeywords = response.data.keywords || [];
@@ -26,7 +26,7 @@ const KeywordForm = ({ token, onKeywordSearch }) => {
     if (!newKeyword) return;
     const updatedKeywords = [...keywords, newKeyword];
     try {
-      await axios.put('http://localhost:8000/users/keywords', { keywords: updatedKeywords }, {
+      await axios.put('/api/users/keywords', { keywords: updatedKeywords }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setKeywords(updatedKeywords);
@@ -39,7 +39,7 @@ const KeywordForm = ({ token, onKeywordSearch }) => {
 
   const handleDeleteKeyword = async (keyword) => {
     try {
-      await axios.delete(`http://localhost:8000/users/keywords/${keyword}`, {
+      await axios.delete(`/api/users/keywords/${keyword}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setKeywords(keywords.filter(kw => kw !== keyword));
