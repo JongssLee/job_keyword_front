@@ -2,10 +2,10 @@
 FROM node:16 as build
 
 WORKDIR /app
-COPY package.json yarn.lock ./
-RUN yarn install
+COPY package.json package-lock.json ./
+RUN npm install
 COPY . .
-RUN yarn build
+RUN npm run build
 
 # Step 2: Serve the app with Nginx
 FROM nginx:alpine
