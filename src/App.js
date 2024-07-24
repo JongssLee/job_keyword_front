@@ -8,18 +8,24 @@ const { Option } = Select;
 const { Text, Title } = Typography;
 
 const App = ({ token, setToken }) => {
-  const [jobs, setJobs] = useState({});
+  const [jobs, setJobs] = useState([]);
   const [searchType, setSearchType] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
 
-  const fetchJobs = async (url) => {
+  const fetchJobs = async (url = '/api/jobs') => {
     try {
       setLoading(true);
       const response = await axios.get(url);
       console.log('Fetched data:', response.data);
-      setJobs(response.data);
+      // 받아온 데이터가 객체인 경우 배열로 변환
+      const jobsArray = Array.isArray(response.data) 
+        ? response.data 
+        : Object.entries(response.data).flatMap(([company, jobList]) =>
+            Array.isArray(jobList) ? jobList.map(job => ({ ...job, company })) : []
+          );
+      setJobs(jobsArray);
       setLoading(false);
     } catch (error) {
       message.error('Error fetching jobs');
@@ -41,7 +47,7 @@ const App = ({ token, setToken }) => {
   };
 
   useEffect(() => {
-    fetchJobs('/api/jobs');
+    fetchJobs();  // 초기 로딩 시 모든 jobs 가져오기
   }, []);
 
   useEffect(() => {
@@ -58,11 +64,11 @@ const App = ({ token, setToken }) => {
     fetchJobs(url);
   };
 
-  const renderItem = item => {
+  const renderItem = (item) => {
     const { 공고제목 = '', 직군 = '', 신입_경력 = '', 근무형태 = '', 링크 = '', 직무내용 = [] } = item;
 
     return (
-      <Col xs={24} sm={12} md={8} lg={6} xl={6} key={item.id}>
+      <Col xs={24} sm={12} md={8} lg={6} xl={6} key={item.id || item.링크}>
         <Card
           title={
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -115,9 +121,7 @@ const App = ({ token, setToken }) => {
       </Form>
       {token && <KeywordForm token={token} onKeywordSearch={handleSearch} />}
       <Row gutter={[16, 16]}>
-        {Array.isArray(jobs) ? jobs.map(renderItem) : Object.entries(jobs).flatMap(([company, jobList]) =>
-          Array.isArray(jobList) ? jobList.map(job => renderItem({ ...job, company })) : []
-        )}
+        {jobs.map(renderItem)}
       </Row>
     </Layout>
   );
