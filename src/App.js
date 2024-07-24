@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Input, Select, Button, Form, Typography, message, Card, Row, Col, Modal } from 'antd';
+import { Input, Select, Button, Form, Typography, message, Card, Row, Col, Modal, Pagination } from 'antd';
 import axios from 'axios';
 import Layout from './Layout';
 import KeywordForm from './KeywordForm';
@@ -15,6 +15,8 @@ const App = ({ token, setToken }) => {
   const [user, setUser] = useState(null);
   const [selectedJob, setSelectedJob] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(12);
 
   const fetchJobs = async (url = '/api/jobs') => {
     try {
@@ -99,6 +101,15 @@ const App = ({ token, setToken }) => {
     );
   };
 
+  const handlePageChange = (page, pageSize) => {
+    setCurrentPage(page);
+    setPageSize(pageSize);
+  };
+
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedJobs = jobs.slice(startIndex, endIndex);
+
   return (
     <Layout token={token} setToken={setToken} user={user}>
       <Form layout="inline" onFinish={handleSearch} style={{ marginBottom: '20px' }}>
@@ -123,8 +134,15 @@ const App = ({ token, setToken }) => {
       </Form>
       {token && <KeywordForm token={token} onKeywordSearch={handleSearch} />}
       <Row gutter={[16, 16]}>
-        {jobs.map(renderItem)}
+        {paginatedJobs.map(renderItem)}
       </Row>
+      <Pagination
+        current={currentPage}
+        pageSize={pageSize}
+        total={jobs.length}
+        onChange={handlePageChange}
+        style={{ textAlign: 'center', marginTop: '20px' }}
+      />
       {selectedJob && (
         <Modal
           title={
@@ -136,7 +154,7 @@ const App = ({ token, setToken }) => {
                 target="_blank" 
                 rel="noopener noreferrer"
                 style={{ marginRight: '20px' }}
-                >
+              >
                 Go to Link
               </Button>
             </div>
