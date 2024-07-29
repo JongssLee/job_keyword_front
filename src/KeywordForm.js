@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, List, message } from 'antd';
+import { Form, Input, Button, message, Tag } from 'antd';
 import axios from 'axios';
+import { PlusOutlined, CloseOutlined } from '@ant-design/icons';
 
 const KeywordForm = ({ token, onKeywordSearch }) => {
   const [keywords, setKeywords] = useState([]);
@@ -60,24 +61,21 @@ const KeywordForm = ({ token, onKeywordSearch }) => {
           />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" htmlType="submit">Add</Button>
+          <Button type="primary" htmlType="submit" >Add</Button>
         </Form.Item>
       </Form>
-      <List
-        bordered
-        dataSource={keywords}
-        renderItem={item => (
-          <List.Item
-            actions={[
-              <Button type="link" onClick={() => onKeywordSearch(item)}>Search</Button>,
-              <Button type="link" danger onClick={() => handleDeleteKeyword(item)}>Delete</Button>
-            ]}
+      <div style={{ marginTop: '20px' }}>
+        {keywords.map((item) => (
+          <Tag
+            key={item}
+            color="default"
+            style={{ borderRadius: '16px', padding: '4px 10px', marginRight: '8px', marginBottom: '8px', display: 'inline-flex', alignItems: 'center' }}
           >
-            {item}
-          </List.Item>
-        )}
-        style={{ marginTop: '20px' }}
-      />
+            <span style={{ cursor: 'pointer' }} onClick={() => onKeywordSearch(item)}>{item}</span>
+            <CloseOutlined onClick={() => handleDeleteKeyword(item)} style={{ marginLeft: '8px', cursor: 'pointer' }} />
+          </Tag>
+        ))}
+      </div>
     </div>
   );
 };
